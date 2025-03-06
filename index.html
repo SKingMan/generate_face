@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>哈喽 狸猫</title>
+    <style>
+        body {
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 0 20px;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background-color: #f5f7fa;
+            background-image: linear-gradient(135deg, #e0f2ff 0%, #f0e6ff 100%);
+            color: #2c3e50;
+            line-height: 1.6;
+        }
+        h1 {
+            text-align: center;
+            color: #3498db;
+            margin-bottom: 30px;
+            font-weight: 600;
+            font-size: 2.5em;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+        }
+        .input-container {
+            background-color: white;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05), 0 1px 3px rgba(0,0,0,0.1);
+            margin-bottom: 25px;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        .input-container:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0,0,0,0.08), 0 2px 4px rgba(0,0,0,0.12);
+        }
+        textarea {
+            width: 100%;
+            padding: 15px;
+            margin-bottom: 20px;
+            border: 2px solid #e0e5ec;
+            border-radius: 8px;
+            font-size: 16px;
+            resize: vertical;
+            min-height: 120px;
+            transition: border-color 0.3s ease, box-shadow 0.3s ease;
+            background-color: #f8fafc;
+            box-sizing: border-box;
+        }
+        textarea:focus {
+            outline: none;
+            border-color: #3498db;
+            box-shadow: 0 0 0 3px rgba(52,152,219,0.2);
+        }
+        button {
+            width: 100%;
+            padding: 14px;
+            background-color: #3498db;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        button:hover {
+            background-color: #2980b9;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        button:active {
+            transform: translateY(0);
+        }
+        button:disabled {
+            background-color: #bdc3c7;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+        #result {
+            background-color: white;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05), 0 1px 3px rgba(0,0,0,0.1);
+            min-height: 100px;
+            transition: all 0.3s ease;
+        }
+        .loading {
+            text-align: center;
+            color: #7f8c8d;
+            font-size: 1.1em;
+            padding: 20px;
+            animation: pulse 1.5s infinite;
+        }
+        @keyframes pulse {
+            0% { opacity: 0.6; }
+            50% { opacity: 1; }
+            100% { opacity: 0.6; }
+        }
+        .error {
+            color: #e74c3c;
+            padding: 15px;
+            border-radius: 8px;
+            background-color: #fdf0ed;
+            border-left: 4px solid #e74c3c;
+            margin: 10px 0;
+        }
+        .image-container {
+            text-align: center;
+            margin-top: 20px;
+            padding: 10px;
+        }
+        .image-container img {
+            max-width: 100%;
+            border-radius: 12px;
+            box-shadow: 0 6px 12px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease;
+        }
+        .image-container img:hover {
+            transform: scale(1.02);
+        }
+    </style>
+</head>
+<body>
+    <h1>哈喽 狸猫</h1>
+    <p style="text-align: center; color: #7f8c8d; margin-bottom: 20px; font-size: 1.1em;">请输入你的描述，让狸花猫开始它的表演。</p>
+    <div class="input-container">
+        <textarea id="content" placeholder="请输入要生成的表情文字..."></textarea>
+        <button onclick="sendRequest()" id="submitBtn">生成表情</button>
+    </div>
+    <div id="result"></div>
+
+    <script>
+        async function sendRequest() {
+            const content = document.getElementById('content').value;
+            const resultDiv = document.getElementById('result');
+            const submitBtn = document.getElementById('submitBtn');
+            
+            if (!content.trim()) {
+                resultDiv.innerHTML = '<div class="error">请输入要生成的文字内容</div>';
+                return;
+            }
+
+            submitBtn.disabled = true;
+            resultDiv.innerHTML = '<div class="loading">正在生成表情，请稍候...</div>';
+
+            try {
+                const response = await fetch('https://api.coze.cn/v3/chat', {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': 'Bearer pat_czCrM3HCXzMkHqvTx1oGLM40masX8cdfuZ7CfRKV15cWIpKp6FHZm3ekcFMzML04',
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        bot_id: '7478584611401416743',
+                        user_id: '123456789',
+                        stream: true,
+                        auto_save_history: true,
+                        additional_messages: [
+                            {
+                                role: 'user',
+                                content: content,
+                                content_type: 'text'
+                            }
+                        ]
+                    })
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const reader = response.body.getReader();
+                const decoder = new TextDecoder();
+                let buffer = '';
+
+                while (true) {
+                    const {value, done} = await reader.read();
+                    if (done) break;
+                    
+                    buffer += decoder.decode(value);
+                    const events = buffer.split('\n\n');
+                    buffer = events.pop() || '';
+
+                    for (const event of events) {
+                        if (!event.trim()) continue;
+                        
+                        const lines = event.split('\n');
+                        const eventType = lines[0].slice(6);
+                        const jsonData = lines[1].slice(5);
+
+                        if (eventType === 'conversation.message.delta') {
+                            try {
+                                const data = JSON.parse(jsonData);
+                                if (data.content) {
+                                    // 检查内容是否为图片链接
+                                    const imageUrlMatch = data.content.match(/https?:\/\/[^\s]+/i);
+                                    if (imageUrlMatch) {
+                                        const imageUrl = imageUrlMatch[0];
+                                        resultDiv.innerHTML = `
+                                            <div class="image-container">
+                                                <img src="${imageUrl}" alt="生成的表情" />
+                                            </div>
+                                        `;
+                                    } else {
+                                        resultDiv.textContent = data.content;
+                                    }
+                                }
+                            } catch (e) {
+                                console.error('JSON解析错误:', e);
+                            }
+                        }
+                    }
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `<div class="error">错误: ${error.message}</div>`;
+                console.error('Error:', error);
+            } finally {
+                submitBtn.disabled = false;
+            }
+        }
+    </script>
+</body>
+</html>
