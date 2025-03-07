@@ -126,8 +126,26 @@
     </style>
 </head>
 <body>
-    <h1>哈喽 狸猫</h1>
-    <p style="text-align: center; color: #7f8c8d; margin-bottom: 20px; font-size: 1.1em;">请输入你的描述，让狸花猫开始它的表演。</p>
+    <h1 id="pageTitle">哈喽 狸猫</h1>
+    <p id="pageDesc" style="text-align: center; color: #7f8c8d; margin-bottom: 20px; font-size: 1.1em;">请输入你的描述，让狸花猫开始它的表演。</p>
+    <div class="animal-selector">
+        <button class="animal-btn active" data-animal="狸花猫" data-title="哈喽 狸猫" data-desc="请输入你的描述，让狸花猫开始它的表演。">
+            <img src="https://api.iconify.design/emojione-v1:cat-face.svg" alt="狸花猫" />
+            狸花猫
+        </button>
+        <button class="animal-btn" data-animal="柴犬" data-title="哈喽 柴犬" data-desc="请输入你的描述，让可爱的柴犬开始表演。">
+            <img src="https://api.iconify.design/emojione-v1:dog-face.svg" alt="柴犬" />
+            柴犬
+        </button>
+        <button class="animal-btn" data-animal="卡皮巴拉" data-title="哈喽 卡皮巴拉" data-desc="请输入你的描述，让萌萌的卡皮巴拉开始表演。">
+            <img src="https://api.iconify.design/emojione-v1:hamster-face.svg" alt="卡皮巴拉" />
+            卡皮巴拉
+        </button>
+        <button class="animal-btn" data-animal="土拨鼠" data-title="哈喽 土拨鼠" data-desc="请输入你的描述，让可爱的土拨鼠开始表演。">
+            <img src="https://api.iconify.design/emojione-v1:mouse-face.svg" alt="土拨鼠" />
+            土拨鼠
+        </button>
+    </div>
     <div class="input-container">
         <textarea id="content" placeholder="请输入要生成的表情文字..."></textarea>
         <button onclick="sendRequest()" id="submitBtn">生成表情</button>
@@ -135,6 +153,24 @@
     <div id="result"></div>
 
     <script>
+        let selectedAnimal = "狸花猫";
+
+        // 初始化动物选择按钮
+        document.querySelectorAll('.animal-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                // 更新选中状态
+                document.querySelectorAll('.animal-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                
+                // 更新选中的动物
+                selectedAnimal = btn.dataset.animal;
+                
+                // 更新页面标题和描述
+                document.getElementById('pageTitle').textContent = btn.dataset.title;
+                document.getElementById('pageDesc').textContent = btn.dataset.desc;
+            });
+        });
+
         async function sendRequest() {
             const content = document.getElementById('content').value;
             const resultDiv = document.getElementById('result');
@@ -144,6 +180,9 @@
                 resultDiv.innerHTML = '<div class="error">请输入要生成的文字内容</div>';
                 return;
             }
+
+            // 组合动物和文本
+            const processedContent = `${selectedAnimal}:${content}`;
 
             submitBtn.disabled = true;
             resultDiv.innerHTML = '<div class="loading">正在生成表情，请稍候...</div>';
@@ -163,7 +202,7 @@
                         additional_messages: [
                             {
                                 role: 'user',
-                                content: content,
+                                content: processedContent,
                                 content_type: 'text'
                             }
                         ]
@@ -226,3 +265,39 @@
     </script>
 </body>
 </html>
+<style>
+    .animal-selector {
+        display: flex;
+        justify-content: space-between;
+        gap: 15px;
+        margin-bottom: 25px;
+    }
+    .animal-btn {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 15px;
+        background-color: white;
+        border: 2px solid #e0e5ec;
+        border-radius: 12px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        width: auto;
+        color: #95a5a6;
+    }
+    .animal-btn img {
+        width: 32px;
+        height: 32px;
+        margin-bottom: 8px;
+    }
+    .animal-btn.active {
+        border-color: #3498db;
+        background-color: #f7fbfe;
+        color: #3498db;
+    }
+    .animal-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+</style>
